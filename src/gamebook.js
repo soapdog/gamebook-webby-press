@@ -19,7 +19,7 @@ export function addChoice(
     return book
 }
 
-export function addSection(book, id, description, choices = {}) {
+export function addSection(book, id, description = "", choices = {}) {
     let section = {
         id,
         description,
@@ -59,6 +59,6 @@ export function gamebookToMermaid(book) {
 			data += `${section.id} --${choice.label}--> ${choice.destination}\n`
 		}
 	}
-	
+	console.log("diagram", data)
 	return data
 }
