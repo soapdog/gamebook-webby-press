@@ -48,8 +48,8 @@ export function newGamebook(metadata = {title: "Unnamed Adventure"}, sections = 
     }
 }
 
-export function gamebookToMermaid(book, activeSection) {
-	let data = `flowchart TB\n\n`
+export function gamebookToMermaid(book, activeSection, orientation = "TB") {
+	let data = `flowchart ${orientation}\n\n`
 	
 	for (const s in book.sections) {
 		let section = book.sections[s]
@@ -63,7 +63,11 @@ export function gamebookToMermaid(book, activeSection) {
 		
 		for (const c in section.choices) {
 			let choice = section.choices[c]
-			data += `${section.id} --${choice.label}--> ${choice.destination}\n`
+            if (choice.tagsRequired.length == 0 && choice.tagsProhibited == 0) {
+			    data += `${section.id} --${choice.label}--> ${choice.destination}\n`
+            } else {
+                data += `${section.id} -.${choice.label}.-> ${choice.destination}\n`
+            }
 		}
 	}
     

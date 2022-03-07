@@ -9,12 +9,15 @@
 	
 	let showDiagram = true
 	let showEditor = true
+	let diagramOrientation = "TB"
 	
 	let fLabel = ""
 	let fDestination = ""
 	let fTagsRequired = ""
 	let fTagsProhibited = ""
 	let fTagsAdded = ""
+	
+	let choices = []
 	
 	onMount(() => {
 		updateUI()
@@ -34,9 +37,13 @@
 	}
 	
 	const editSection = (id) => {
+		console.dir($book.sections[$activeSection])
+		
 		$activeSection = id
 		
 		description = $book.sections[$activeSection].description
+		
+		choices = Object.keys($book.sections[$activeSection].choices).map(e => $book.sections[$activeSection].choices[e])
 		updateUI()
 	}
 	
@@ -55,13 +62,36 @@
 		}
 	}
 	
+	const deleteChoice = (label) => {
+		let answer = confirm(`Are you sure you want to delete choice with label: "${label}"? This cannot be undone.`)
+		
+		if (answer) {
+			let choices = $book.sections[$activeSection].choices
+			delete choices[label]
+			$book.sections[$activeSection].choices = choices
+			persistBook($book)
+			editSection($activeSection)
+		}
+	}
+	
+	
+	const editChoice = (label) => {
+		fLabel = label
+		fDestination = $book.sections[$activeSection].choices[label].destination
+		fTagsRequired = $book.sections[$activeSection].choices[label].tagsRequired.join(", ")
+		fTagsProhibited = $book.sections[$activeSection].choices[label].tagsProhibited.join(", ")
+		fTagsAdded = $book.sections[$activeSection].choices[label].tagsAdded.join(", ")
+		
+		updateUI()
+	}
+	
 	const saveSection = () => {
 		$book.sections[$activeSection].description = description
 		persistBook($book)
 	}
 	
 	const updateUI = () => {
-		diagramData.set(gamebookToMermaid($book, $activeSection))
+		diagramData.set(gamebookToMermaid($book, $activeSection, diagramOrientation))
 	}
 	
 	const handleClickSection = (evt) => {
@@ -73,6 +103,16 @@
 	}
 	
 	const saveChoice = () => {
+		if (fDestination == "") {
+			alert("Please select a destination section.")
+			return false
+		}
+		
+		if (fLabel == "") {
+			alert("Please add a label.")
+			return false
+		}
+		
 		let tagsRequired = fTagsRequired.length > 0 ? fTagsRequired.split(",").map(e => e.trim()) : []
 		let tagsProhibited = fTagsProhibited.length > 0 ? fTagsProhibited.split(",").map(e => e.trim()) : []
 		let tagsAdded = fTagsAdded.length > 0 ? fTagsAdded.split(",").map(e => e.trim()) : []
@@ -87,13 +127,17 @@
 		fTagsProhibited = ""
 		fTagsAdded = ""
 		
-		updateUI()
+		editSection($activeSection)
 	}
 </script>
 <div class="p-5">
 	<div class="flex justify-center">
 		  <div class="flex-1">
-		  <button class="btn float-left" class:btn-primary={showDiagram} on:click={() => {showDiagram = !showDiagram}}>Diagram</button>
+		  	<button class="btn float-left" class:btn-primary={showDiagram} on:click={() => {showDiagram = !showDiagram}}>Diagram</button>
+ 			<div class="btn-group pl-4" on:change={updateUI}>
+   				<input type="radio" bind:group={diagramOrientation} value="TB" name="options" data-title="Vertical" class="btn"  checked={diagramOrientation == "TB"}>
+   				<input type="radio" bind:group={diagramOrientation} value="LR" name="options" data-title="Horizontal" class="btn" checked={diagramOrientation == "LR"}>
+ 			</div>
 		  </div>
 		  <div class="flex-1">
 		  <button class="btn float-right" class:btn-primary={showEditor} on:click={() => {showEditor = !showEditor}}>Editor</button>
@@ -118,7 +162,47 @@
   				</label> 
   				<textarea class="textarea textarea-bordered textarea-primary h-24" placeholder="Your masterpiece here. No instadeath please." bind:value={description} on:change={saveSection}></textarea>
 			</div>
+			
+			{#if choices.length > 0}
 			<div class="divider"></div>
+				<div class="overflow-x-auto">
+			  	<table class="table w-full">
+					<thead>
+				  	<tr>
+						<th>Destination</th>
+						<th>Label</th>
+						<th>Tags required</th>
+						<th>Tags prohibited</th>
+						<th>Tags added</th>
+						<th>Controls</th>
+				  	</tr>
+					</thead>
+					<tbody>
+						{#each choices as choice}
+						{@debug choice}
+						<tr class:active={fLabel == choice.label}>
+							<td>{choice.destination}</td>
+							<td>{choice.label}</td>
+							<td>{choice?.tagsRequired.join(", ")}</td>
+							<td>{choice?.tagsProhibited.join(", ")}</td>
+							<td>{choice?.tagsAdded.join(", ")}</td>
+							<td>
+								<button class="btn-sm btn-ghost m-2" on:click={()=>{editChoice(choice.label)}}>Edit</button>
+								<button class="btn-sm btn-ghost m-2" on:click={()=>{deleteChoice(choice.label)}}>Delete</button>
+							</td>
+						</tr>
+						{/each}
+					</tbody>
+			  	</table>
+				</div>
+			{:else}
+			<p>No choices</p>
+			{/if}
+			
+			
+			<div class="divider"></div>
+			
+			
 			<div class="flex">
 				<div class="form-control pr-2 flex-1">
 					<label class="label">
@@ -130,7 +214,7 @@
 					<label class="label">
 						<span class="label-text">Destination</span>
 					</label>
-					<SectionPicker label="Select Destination" initialValue={fDestination} on:selectSection={handleDestinationSelect} />
+					<SectionPicker label="Select Destination" bind:value={fDestination} on:selectSection={handleDestinationSelect} />
 				</div>
 			</div>
 			<div class="flex">
