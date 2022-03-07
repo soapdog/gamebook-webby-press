@@ -1,4 +1,4 @@
-<div class="fixed inset-x-0 bottom-0">
+<div class="inset-x-0 bottom-0">
 <footer class="footer items-center p-4 bg-neutral text-neutral-content">
   <div class="items-center grid-flow-col">
 	<p class="hidden lg:block">

@@ -12,9 +12,9 @@
 	
 	let fLabel = ""
 	let fDestination = ""
-	let fTagsRequired = []
-	let fTagsProhibited = []
-	let fTagsAdded = []
+	let fTagsRequired = ""
+	let fTagsProhibited = ""
+	let fTagsAdded = ""
 	
 	onMount(() => {
 		updateUI()
@@ -67,6 +67,28 @@
 	const handleClickSection = (evt) => {
 		editSection(evt.detail)
 	}
+	
+	const handleDestinationSelect = (evt) => {
+		fDestination = evt.detail
+	}
+	
+	const saveChoice = () => {
+		let tagsRequired = fTagsRequired.length > 0 ? fTagsRequired.split(",").map(e => e.trim()) : []
+		let tagsProhibited = fTagsProhibited.length > 0 ? fTagsProhibited.split(",").map(e => e.trim()) : []
+		let tagsAdded = fTagsAdded.length > 0 ? fTagsAdded.split(",").map(e => e.trim()) : []
+		
+		$book = addChoice($book, $activeSection, fLabel, fDestination, tagsRequired, tagsProhibited, tagsAdded)
+		persistBook($book)
+		console.dir("book", $book)
+		
+		fLabel = ""
+		fDestination = ""
+		fTagsRequired = ""
+		fTagsProhibited = ""
+		fTagsAdded = ""
+		
+		updateUI()
+	}
 </script>
 <div class="p-5">
 	<div class="flex justify-center">
@@ -102,13 +124,13 @@
 					<label class="label">
 						<span class="label-text">Choice Label</span>
 					</label>
-					<input type="text" class="input input-primary"/>
+					<input type="text" bind:value={fLabel} class="input input-primary"/>
 				</div>
 				<div class="form-control pr-2 flex-1">
 					<label class="label">
 						<span class="label-text">Destination</span>
 					</label>
-					<SectionPicker label="Select Destination" on:selectSection={handleClickSection} />
+					<SectionPicker label="Select Destination" initialValue={fDestination} on:selectSection={handleDestinationSelect} />
 				</div>
 			</div>
 			<div class="flex">
@@ -116,22 +138,22 @@
 					<label class="label">
 						<span class="label-text">Required tags</span>
 					</label>
-					<input type="text" class="input input-primary"/>
+					<input type="text" class="input input-primary" bind:value={fTagsRequired} />
 				</div>
 				<div class="form-control pr-2 flex-1">
 					<label class="label">
 						<span class="label-text">Prohibited tags</span>
 					</label>
-					<input type="text" class="input input-primary"/>
+					<input type="text" class="input input-primary" bind:value={fTagsProhibited}/>
 				</div>
 				<div class="form-control pr-2 flex-1">
 					<label class="label">
 						<span class="label-text">New tags</span>
 					</label>
-					<input type="text" class="input input-primary"/>
+					<input type="text" class="input input-primary" bind:value={fTagsAdded}/>
 				</div>
 			</div>
-			<button class="btn btn-primary float-right m-2">Save Choice</button>
+			<button class="btn btn-primary float-right m-2" on:click={saveChoice}>Save Choice</button>
 		</div>
 	</div>
 </div>
