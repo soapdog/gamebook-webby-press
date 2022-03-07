@@ -106,7 +106,7 @@
 		<div class="flex-1" class:hidden={!showEditor}>
 			<div class="flex items-center">
 				<span class="flex-1">You're editing</span>
-				<SectionPicker on:selectSection={handleClickSection} />
+				<SectionPicker bind:value={$activeSection} on:selectSection={handleClickSection} />
 				<button class="btn btn-ghost m-2" on:click={newSection}>New Section</button>
 				<button class="btn btn-ghost m-2" on:click={deleteSection}>Delete Section</button>
 				

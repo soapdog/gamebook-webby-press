@@ -8,6 +8,7 @@
 	export let value = $activeSection
 	
 	const handleSectionSelection = (id) => {
+		value = id
 		dispatch("selectSection", id)
 	}
 	
