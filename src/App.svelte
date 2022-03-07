@@ -52,7 +52,7 @@
         </div>
       </div>
       <!-- Page content here -->
-      <div class="flex flex-col">
+      <div class="flex flex-col pb-4">
        <svelte:component this={views[$route.to]} data={$route.data}/> 
        <Footer />  
       </div>

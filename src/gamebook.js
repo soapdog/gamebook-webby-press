@@ -66,8 +66,7 @@ export function gamebookToMermaid(book, activeSection) {
 			data += `${section.id} --${choice.label}--> ${choice.destination}\n`
 		}
 	}
-    console.dir("book", book)
-	console.log("diagram", data)
+    
 	return data
 }
 

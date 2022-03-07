@@ -8,8 +8,7 @@
 	// need to add this to the global object because
 	// this is where mermaid looks for callbacks ¬¬
 	window.editSection = (id) => {
-		console.log("callback", id)
-		dispatch("clickSection", id)
+		dispatch("selectSection", id)
 	}
 	
 
@@ -29,7 +28,6 @@
 		mermaid.initialize(config)
 		
 		diagramData.subscribe((data) => {
-			console.log("data updated", data)
 			
 			if (data === "") { 
 				console.log("passed no data to mermaid diagram.")

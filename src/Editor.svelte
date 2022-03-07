@@ -1,17 +1,27 @@
 <script>
 	import { onMount } from "svelte"
 	import Diagram from "./Diagram.svelte"
+	import SectionPicker from "./SectionPicker.svelte"
 	import { diagramData, book, activeSection } from "./store.js"
 	import {addSection, addChoice, setMetadata, newGamebook, gamebookToMermaid, persistBook} from "./gamebook.js"
 	
 	let description = ""
+	
+	let showDiagram = true
+	let showEditor = true
+	
+	let fLabel = ""
+	let fDestination = ""
+	let fTagsRequired = []
+	let fTagsProhibited = []
+	let fTagsAdded = []
 	
 	onMount(() => {
 		updateUI()
 	})
 	
 	const newSection = () => {
-		let id = prompt("ID for the new section (keep it short)")
+		let id = prompt("ID for the new section (keep it short, use only letters and dashes)")
 		
 		id = id.replace(/[^\u00BF-\u1FFF\u2C00-\uD7FF\w]+|[\_]+/ig, '-')
 		
@@ -55,26 +65,26 @@
 	}
 	
 	const handleClickSection = (evt) => {
-		console.log("handleClickSection", evt)
 		editSection(evt.detail)
 	}
 </script>
 <div class="p-5">
+	<div class="flex justify-center">
+		  <div class="flex-1">
+		  <button class="btn float-left" class:btn-primary={showDiagram} on:click={() => {showDiagram = !showDiagram}}>Diagram</button>
+		  </div>
+		  <div class="flex-1">
+		  <button class="btn float-right" class:btn-primary={showEditor} on:click={() => {showEditor = !showEditor}}>Editor</button>
+		  </div>
+	</div>
 	<div class="flex">
-		<div class="flex-1 p-2">
-			<Diagram on:clickSection={handleClickSection} />
+		<div class="flex-1 p-2" class:hidden={!showDiagram}>
+			<Diagram on:selectSection={handleClickSection} />
 		</div>
-		<div class="flex-1">
+		<div class="flex-1" class:hidden={!showEditor}>
 			<div class="flex items-center">
 				<span class="flex-1">You're editing</span>
-				<div class="form-control m-2">
-					<select class="select select-primary w-full" bind:value={$activeSection} on:change={() => {editSection($activeSection)}}>
-					  <option disabled>Select section to edit</option>
-					  {#each Object.keys($book.sections) as k}
-						<option selected={$activeSection == $book.sections[k].id} value={$book.sections[k].id}>{$book.sections[k].id}</option>
-					  {/each}
-					</select>
-				</div>
+				<SectionPicker on:selectSection={handleClickSection} />
 				<button class="btn btn-ghost m-2" on:click={newSection}>New Section</button>
 				<button class="btn btn-ghost m-2" on:click={deleteSection}>Delete Section</button>
 				
@@ -98,14 +108,7 @@
 					<label class="label">
 						<span class="label-text">Destination</span>
 					</label>
-					<select class="select select-primary w-full">
-					  <option disabled selected>Pick your favorite Simpson</option>
-					  <option>Homer</option>
-					  <option>Marge</option>
-					  <option>Bart</option>
-					  <option>Lisa</option>
-					  <option>Maggie</option>
-					</select>
+					<SectionPicker label="Select Destination" on:selectSection={handleClickSection} />
 				</div>
 			</div>
 			<div class="flex">
@@ -128,6 +131,7 @@
 					<input type="text" class="input input-primary"/>
 				</div>
 			</div>
+			<button class="btn btn-primary float-right m-2">Save Choice</button>
 		</div>
 	</div>
 </div>
