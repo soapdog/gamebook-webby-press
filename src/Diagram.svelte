@@ -1,32 +1,48 @@
 <script>
-	import {onMount} from "svelte"
+	import { onMount, createEventDispatcher } from "svelte"
 	import mermaid from "mermaid"
 	import { diagramData } from "./store.js"
+	
+	const dispatch = createEventDispatcher()
+	
+	// need to add this to the global object because
+	// this is where mermaid looks for callbacks ¬¬
+	window.editSection = (id) => {
+		console.log("callback", id)
+		dispatch("clickSection", id)
+	}
 	
 
 
 	onMount(()=>{
-		console.log("go!")
 		let config = {
 			startOnLoad:false,
 			flowchart:{
 				useMaxWidth:true,
 				htmlLabels:true,
-				curve:'cardinal',
+				curve:"cardinal",
 			},
-			securityLevel:'loose',
+			securityLevel:"loose",
 		}
  	
 		console.log("initial diagram data:", $diagramData)	
 		mermaid.initialize(config)
 		
 		diagramData.subscribe((data) => {
-			console.log("data updated")
+			console.log("data updated", data)
+			
+			if (data === "") { 
+				console.log("passed no data to mermaid diagram.")
+				return false
+			}
+			
 			let output = document.getElementById("chart") 
-			let insert = function (code) {
-				output.innerHTML = code;
+			
+			let insert = function (code, binder) {
+				output.innerHTML = code
+				binder(output)	
 		  	}
-		  	mermaid.render("preparedScheme", data, insert)
+		  	mermaid.render("preparedScheme", data, insert, output)
 		})
 	})
 

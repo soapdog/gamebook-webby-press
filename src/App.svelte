@@ -1,7 +1,35 @@
 <script>
+  import { route, go, book } from "./store.js"
   import Menu from "./Menu.svelte"
   import Footer from "./Footer.svelte"
+  
+  // Views
   import Editor from "./Editor.svelte"
+  import About from "./About.svelte"
+  import SaveAndLoad from "./SaveAndLoad.svelte"
+  import Books from "./Books.svelte"
+  
+  let urlParams = location.search
+  let params = new URLSearchParams(urlParams)
+  
+  if (params.get("view")) {
+    go(params.get("view"))
+  }
+  
+  if (localStorage.getItem("current book")) {
+    let key = localStorage.getItem("current book")
+    let data = localStorage.getItem(key)
+    let b = JSON.parse(data)
+    $book = b
+    go("editor")
+  }
+  
+  const views = {
+    about: About,
+    editor: Editor,
+    saveload: SaveAndLoad,
+    books: Books
+  }
 </script>
 
 <main>
@@ -15,7 +43,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </label>
         </div> 
-        <div class="flex-1 px-2 mx-2 font-semibold">Gamebook Press for Playdate</div>
+        <div class="flex-1 px-2 mx-2 font-semibold">Gamebook.Webby.Press</div>
         <div class="flex-none hidden lg:block">
           <ul class="menu menu-horizontal">
             <!-- Navbar menu content here -->
@@ -25,7 +53,7 @@
       </div>
       <!-- Page content here -->
       <div class="flex flex-col">
-       <Editor /> 
+       <svelte:component this={views[$route.to]} data={$route.data}/> 
        <Footer />  
       </div>
       
