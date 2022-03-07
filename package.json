@@ -1,7 +1,9 @@
 {
-  "name": "playdate-gamebook-press",
+  "name": "gamebook.webby.press",
+  "license": "MIT",
+  "author": "Andre Alves Garzia (https://andregarzia.com)",
   "private": true,
-  "version": "0.0.0",
+  "version": "2022.3",
   "type": "module",
   "scripts": {
     "dev": "vite dev --open",
